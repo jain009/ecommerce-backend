@@ -34,11 +34,14 @@ app.use(cors({
   credentials: true
 }));
 
+
 // Middleware
 // *CRITICAL*:  express.json() and express.urlencoded() MUST come *before* your route handlers.
 app.use(express.json({ type: 'application/json' }));  // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 app.use(cookieParser());
+
+
 
 // Serve static files from uploads directory.  Important to be able to access uploaded files.
 const __dirname = path.resolve();
@@ -61,16 +64,21 @@ app.get('/api/config/razorpay', (req, res) =>
 
 
 // Production setup
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'frontend/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
-  });
-} else {
-  app.get('/', (req, res) => {
-    res.send('API is running...');
-  });
-}
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, 'frontend/dist')));
+//   app.get('*', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+//   });
+// } else {
+//   app.get('/', (req, res) => {
+//     res.send('API is running...');
+//   });
+// }
+
+app.get("/", (req, res) => {
+  res.send("api is running");
+})
+
 
 // Error handling
 app.use(notFound);
