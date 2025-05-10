@@ -11,6 +11,7 @@ import cors from 'cors';
 import fs from 'fs';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
+dotenv.config();
 
 ['PORT', 'MONGO_URI', 'RAZORPAY'].forEach(variable => {
   if (!process.env[variable]) {
@@ -18,7 +19,6 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
     process.exit(1);
   }
 });
-dotenv.config();
 const port = process.env.PORT 
 
 // Database connection
@@ -67,16 +67,16 @@ app.get('/api/config/razorpay', (req, res) =>
 
 
 // Production setup
-// if (process.env.NODE_ENV === 'production') {
-//   app.use(express.static(path.join(__dirname, 'frontend/dist')));
-//   app.get('*', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
-//   });
-// } else {
-//   app.get('/', (req, res) => {
-//     res.send('API is running...');
-//   });
-// }
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'frontend/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.send('API is running...');
+  });
+}
 
 app.get("/", (req, res) => {
   res.send("api is running");
