@@ -39,10 +39,7 @@ app.use(cors({
 // *CRITICAL*:  express.json() and express.urlencoded() MUST come *before* your route handlers.
 app.use(express.json({ type: 'application/json' }));  // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
-app.use(cookieParser({
-  httpOnly: true,
-  secure:true,
-}));
+app.use(cookieParser());
 
 
 
