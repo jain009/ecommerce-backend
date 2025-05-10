@@ -19,7 +19,7 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
   }
 });
 dotenv.config();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT 
 
 // Database connection
 connectDB();
@@ -28,7 +28,7 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: process.env.CLIENT_URL ,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Content-Disposition'],
   credentials: true
@@ -39,7 +39,10 @@ app.use(cors({
 // *CRITICAL*:  express.json() and express.urlencoded() MUST come *before* your route handlers.
 app.use(express.json({ type: 'application/json' }));  // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
-app.use(cookieParser());
+app.use(cookieParser({
+  httpOnly: true,
+  secure:true,
+}));
 
 
 
