@@ -2,34 +2,43 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "./asyncHandler.js";
 import User from "../models/userModel.js";
 
-//Protect Rotes
+// Protect Routes Middleware
 const protect = asyncHandler(async (req, res, next) => {
-  let token;
+  let token = null;
 
-  //Read the JWT from the cookie
-  token = req.cookies.jwt;
-  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+  // DEBUG: log incoming cookies and headers
+  console.log("Cookies:", req.cookies);
+  console.log("Authorization:", req.headers.authorization);
+
+  // Try to get token from cookies
+  if (req.cookies && req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+  // Fallback: Try to get token from Authorization header
+  else if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer ")
+  ) {
     token = req.headers.authorization.split(" ")[1];
   }
 
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.userId).select("-password");
-      next();
-    } catch (error) {
-      console.log(error);
-      res.status(401);
-      throw new Error("Not authorized, token failed");
-    } 
-  }else{
- 
+  if (!token) {
     res.status(401);
-    throw new Error("Not authrorised, no token")
+    throw new Error("Not authorized, no token");
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.userId).select("-password");
+    next();
+  } catch (error) {
+    console.error("JWT verification failed:", error.message);
+    res.status(401);
+    throw new Error("Not authorized, token failed");
   }
 });
 
-//Admin middlewares
+// Admin Middleware
 const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
