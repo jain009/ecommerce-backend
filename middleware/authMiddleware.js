@@ -3,41 +3,34 @@ import asyncHandler from "./asyncHandler.js";
 import User from "../models/userModel.js";
 
 // Protect Routes Middleware
-const protect = asyncHandler(async (req, res, next) => {
-  let token = null;
-
-  // DEBUG: log incoming cookies and headers
-  console.log("Cookies:", req.cookies);
-  console.log("Authorization:", req.headers.authorization);
-
-  // Try to get token from cookies
-  if (req.cookies && req.cookies.jwt) {
-    token = req.cookies.jwt;
-  }
-  // Fallback: Try to get token from Authorization header
-  else if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer ")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-
-  if (!token) {
-    res.status(401);
-    throw new Error("Not authorized, no token");
-  }
-
+const protect = async (req, res, next) => {
   try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Not authorized, no token' });
+    }
+
+    const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.userId).select("-password");
+    
+    // Verify user exists in DB
+    const user = await User.findById(decoded.userId).select('-password');
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
-    console.error("JWT verification failed:", error.message);
-    res.status(401);
-    throw new Error("Not authorized, token failed");
+    console.error('JWT Error:', error.message);
+    res.status(401).json({ 
+      message: error.name === 'TokenExpiredError' 
+        ? 'Session expired' 
+        : 'Not authorized' 
+    });
   }
-});
-
+};
 // Admin Middleware
 const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
