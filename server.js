@@ -28,11 +28,19 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: 'https://jovial-tartufo-794ca6.netlify.app',
+  origin: process.env.CLIENT_URL,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Content-Disposition'],
-  credentials: true
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Content-Disposition',
+    'X-Requested-With'
+  ],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
 
 
 // Middleware
