@@ -5,17 +5,25 @@ import User from "../models/userModel.js";
 // Protect Routes Middleware
 const protect = async (req, res, next) => {
   try {
+    console.log('Incoming headers:', req.headers);
+    
+    // Check both headers and cookies
+    let token;
     const authHeader = req.headers.authorization;
     
-    if (!authHeader?.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else if (req.cookies?.jwt) {
+      token = req.cookies.jwt;
+    }
+
+    if (!token) {
       return res.status(401).json({ message: 'Not authorized, no token' });
     }
 
-    const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Verify user exists in DB
     const user = await User.findById(decoded.userId).select('-password');
+    
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
@@ -23,11 +31,11 @@ const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('JWT Error:', error.message);
-    res.status(401).json({ 
-      message: error.name === 'TokenExpiredError' 
-        ? 'Session expired' 
-        : 'Not authorized' 
+    console.error('Authentication error:', error);
+    res.status(401).json({
+      message: error.name === 'TokenExpiredError'
+        ? 'Session expired'
+        : 'Invalid token'
     });
   }
 };
