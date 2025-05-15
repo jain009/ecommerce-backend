@@ -2,48 +2,34 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "./asyncHandler.js";
 import User from "../models/userModel.js";
 
-// Protect Routes Middleware
-const protect =  asyncHandler(async (req, res, next) => {
-    let token;
-  try {
-     // Check for the token in the authorization header
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer ')
-    ) {
-      try {
-        token = req.headers.authorization.split(' ')[1];
-      } catch (error) {
-        return res.status(400).json({ message: 'Malformed authorization header' });
-      }
-    } else if (req.cookies.jwt) {
-      token = req.cookies.jwt;
-    }
+//Protect Rotes
+const protect = asyncHandler(async (req, res, next) => {
+  let token;
 
-    if (!token) {
-      return res.status(401).json({ message: 'Not authorized, no token' });
-    }
+  //Read the JWT from the cookie
+  token = req.cookies.jwt;
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string }; // Type assertion
-    const user = await User.findById(decoded.userId).select('-password');
-
-    if (user) {
-      req.user = user;
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.userId).select("-password");
       next();
-    } else {
-      return res.status(401).json({ message: 'Not authorized, invalid token' });
-    }
-  } catch (error: any) {
-    console.error('Authentication error:', error);
-    res.status(401).json({
-      message:
-        error.name === 'TokenExpiredError'
-          ? 'Session expired'
-          : 'Invalid token',
-    });
+    } catch (error) {
+      console.log(error);
+      res.status(401);
+      throw new Error("Not authorized, token failed");
+    } 
+  }else{
+ 
+    res.status(401);
+    throw new Error("Not authrorised, no token")
   }
 });
-// Admin Middleware
+
+//Admin middlewares
 const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
