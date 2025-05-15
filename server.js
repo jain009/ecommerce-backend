@@ -83,7 +83,9 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-
+app.get("/", (req, res) => {
+  res.send("api is running");
+})
 
 // Error handling
 app.use(notFound);
