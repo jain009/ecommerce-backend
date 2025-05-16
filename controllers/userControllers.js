@@ -10,9 +10,9 @@ const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
-  if (user) {
-    generateToken(res, user._id); // Fix typo here
-    res.status(201).json({
+  if (user && (await user.matchPassword(password))) { // Added password check
+    generateToken(res, user._id);
+    res.status(200).json({ // Changed status to 200
       _id: user._id,
       name: user.name,
       email: user.email,
