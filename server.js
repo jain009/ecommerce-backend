@@ -11,7 +11,6 @@ import cors from 'cors';
 import fs from 'fs';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
-dotenv.config();
 
 ['PORT', 'MONGO_URI', 'RAZORPAY'].forEach(variable => {
   if (!process.env[variable]) {
@@ -19,7 +18,8 @@ dotenv.config();
     process.exit(1);
   }
 });
-const port =  process.env.PORT || 3000;
+dotenv.config();
+const port = process.env.PORT || 3000;
 
 // Database connection
 connectDB();
@@ -28,23 +28,18 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL   || 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Content-Disposition'],
-  credentials: true,
+  credentials: true
 }));
 
-
-
 // Middleware
-// *CRITICAL*:  express.json() and express.urlencoded() MUST come *before* your route handlers.
-app.use(express.json({ type: 'application/json' }));  // Parse JSON request bodies
+app.use(express.json());  // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 app.use(cookieParser());
 
-
-
-// Serve static files from uploads directory.  
+// Serve static files from uploads directory.  Important to be able to access uploaded files.
 const __dirname = path.resolve();
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -54,7 +49,7 @@ app.use('/uploads', express.static(uploadsDir));
 
 
 // Routes
-app.use('/api/upload', uploadRoutes); 
+app.use('/api/upload', uploadRoutes); //  uploadRoutes likely uses multer, so it's fine here.
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
@@ -76,11 +71,10 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-
 // Error handling
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => 
+app.listen(port, () =>
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${port}`)
 );
