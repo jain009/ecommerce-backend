@@ -44,7 +44,7 @@ app.use(cookieParser());
 
 
 
-// Serve static files from uploads directory.  Important to be able to access uploaded files.
+// Serve static files from uploads directory.  
 const __dirname = path.resolve();
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -54,7 +54,7 @@ app.use('/uploads', express.static(uploadsDir));
 
 
 // Routes
-app.use('/api/upload', uploadRoutes); //  uploadRoutes likely uses multer, so it's fine here.
+app.use('/api/upload', uploadRoutes); 
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
@@ -81,6 +81,6 @@ if (process.env.NODE_ENV === 'production') {
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port,'0.0.0.0', () =>
+app.listen(port, () => 
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${port}`)
 );
