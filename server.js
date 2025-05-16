@@ -30,15 +30,8 @@ const app = express();
 app.use(cors({
   origin: process.env.CLIENT_URL,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'Content-Disposition',
-    'X-Requested-With'
-  ],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Content-Disposition'],
   credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
 }));
 
 
@@ -83,9 +76,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.get("/", (req, res) => {
-  res.send("api is running");
-})
 
 // Error handling
 app.use(notFound);
