@@ -14,7 +14,6 @@
   "keywords": [],
   "author": "Ankit Jain",
   "license": "ISC",
-  "type": "module",
   "description": "Ecommerce application built with the mern stack",
   "dependencies": {
     "bcryptjs": "^3.0.2",
