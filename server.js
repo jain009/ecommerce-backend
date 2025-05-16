@@ -11,6 +11,7 @@ import cors from 'cors';
 import fs from 'fs';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
+dotenv.config();
 
 ['PORT', 'MONGO_URI', 'RAZORPAY'].forEach(variable => {
   if (!process.env[variable]) {
@@ -18,7 +19,6 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
     process.exit(1);
   }
 });
-dotenv.config();
 const port = process.env.PORT || 3000;
 
 // Database connection
