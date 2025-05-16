@@ -14,8 +14,8 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 dotenv.config();
 
 ['PORT', 'MONGO_URI', 'RAZORPAY'].forEach(variable => {
-  if (!process.env.JWT_SECRET) {
-    throw new Error('FATAL ERROR: JWT_SECRET is not defined');
+  if (!process.env[variable]) {
+    console.error(`Missing required environment variable: ${variable}`);
     process.exit(1);
   }
 });
