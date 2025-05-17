@@ -19,7 +19,7 @@ dotenv.config();
     process.exit(1);
   }
 });
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 // Database connection
 connectDB();
